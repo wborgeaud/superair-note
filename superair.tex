@@ -115,7 +115,7 @@ $$A_1[i,j]=\text{next}(i,j),$$ where $\text{next}(i,j)=\text{eq}(i+1,j)$ is defi
 $$\widetilde{A_0}(x,y) = \widetilde{\text{eq}}(x,y)-\widetilde{\text{eq}}(x,n-1)\cdot \widetilde{\text{eq}}(y,n-1)$$
 which can be evaluated in time $O(v=\log n)$, and the MLE of $A_1$ is
 $$\widetilde{A_1}(x,y) = \widetilde{\text{next}}(x,y)$$
-which can also be evaluated in time $O(v)$, as shown in Theorem 2 of \cite{cryptoeprint:2023/552}.
+which can also be evaluated in time $O(v)$, as shown in Theorem 2 of \cite{cryptoeprint:2023/552}. See also below for a description of $\widetilde{\text{next}}$.
 
 Therefore, oracle access to $\widetilde{A_0}$ and $\widetilde{A_1}$ is not required by the verifier.
 
@@ -175,6 +175,32 @@ $$
 0 = \sum_{a \in \{0,1\}^{\log m}} \widetilde{eq}(\tau,a) \mathcal{C}\left( u_0, \dots, u_{t-1}\right), \text{ with } u_i= \sum_{y \in \{0,1\}^{\log n}} \widetilde{M_i}(a,y)\cdot \widetilde{Z}(y),
 $$
 where $\tau\in \mathbb{F}^{\log m}$ is a random vector. This can be proved using an instantiation of the sumcheck protocol for the inner sum, as well as $t$ instantiations of the sumcheck protocol for the values $u_i$. 
+
+\subsection*{$\widetilde{\text{next}}$ and higher order shifts}
+The function $\widetilde{next}(x,y)$ is described in section 5.1 of [STW23]. It is based on the following algorithm to check that $y=x+1$ using little-endian bit decomposition.
+
+Let $x_k=0$ be the first $0$ bit of $x$, so that $$x=1\dots 1 0 x_{k+1}\dots x_{v-1}.$$ Then $y=x+1$ if and only if $y_i=0$ for $i<k$, $y_k=1$, and $x_i=y_i$ for all $i>k$, i.e., $$y=0\dots 0 1 x_{k+1}\dots x_{v-1}.$$
+We can check this with the multilinear polynomial
+$$g_k(x,y) = \left(\prod_{i=0}^{k-1} x_i(1-y_i)\right)(1-x_k) y_k\ \widetilde{\text{eq}}(x_{k+1},y_{k+1})\cdots \widetilde{\text{eq}}(x_{v-1},y_{v-1}).$$
+The big product checks that the first bits of $x$ are $1$ and those of $y$ are $0$, the term $(1-x_k)y_k$ checks that $x_k=0$ and $y_k=1$, and the $\widetilde{\text{eq}}$ terms check that the remaining bits are equal.
+
+Then we simply have
+$$ \widetilde{\text{next}}(x,y) = \sum_{k=0}^{v-1}g_k(x,y).$$
+Note that if $x=2^v-1$ has all $1$ bits, then $\widetilde{\text{next}}(x,y)=0$ for all $y$ since the $1-x_k$ term is $0$ for all $k$. Finally, note that $g_0(x,y)$ can be computed in time $O(v)$ and that $g_{k+1}(x,y)$ can be computed in time $O(1)$ given $g_k(x,y)$ using 
+$$ g_{k+1}(x,y) = g_k(x,y)\frac{x_k (1-y_k)(1-x_{k+1})y_{k+1}}{x_{k-1}(1-y_{k-1})(1-x_k)y_k\ \widetilde{\text{eq}}(x_{k+1},y_{k+1})}.$$
+Therefore, $\widetilde{\text{next}}(x,y)$ can be computed in time $O(v)$.
+
+$$ $$
+It can sometimes be useful to consider *higher order shifts*, that is constraints of the form
+$$
+F(z_0[i],\dots,z_{C-1}[i],z_0[i+s],\dots,z_{C-1}[i+s])=0,
+$$
+where $s>1$. The above argument can be adapted for this case by using the modified function $\text{next}_s(i,j)=\text{eq}(i+s, j)$. We will only consider the case where $s=2^e$, but the general case can also be done (I think).
+
+To check $y=x+2^e$, we observe that it is equivalent to checking that the first $e$ bits of $x$ and $y$ are equal and that the remaining bits satisfy the $\text{next}$ relation. That is,
+$$\widetilde{\text{next}}_s(x,y)=\widetilde{\text{eq}}(x_{0},y_{0})\cdots \widetilde{\text{eq}}(x_{e-1},y_{e-1})\ \widetilde{\text{next}}(x_e,\dots,x_{v-1},y_e,\dots,y_{v-1}),$$
+which can also be computed in time $O(v)$.
+
 
 
 \bibliographystyle{plain}
