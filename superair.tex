@@ -69,7 +69,11 @@ $$
 It is easy to see that MCCCS is equivalent to CCS by flattening/unflattening the columns. 
 
 \section*{Proving system for MCCCS}
-The SuperSpartan proving system can easily be modified to accommodate MCCCS. The only difference is that the prover commits to all multi-linear extensions (MLE) of the columns and these commitments are all opened at the point $r_y$ in the protocol (see Figure 2 in \cite{cryptoeprint:2023/552}).
+The SuperSpartan proving system can easily be modified to accommodate MCCCS. The only difference is that the prover commits to all MLE $\widetilde{Z}_j(X)$ of the columns and then equation (14) in \cite{cryptoeprint:2023/552}  becomes
+$$
+0 = \sum_{a\in \{0,1\}^{\log m}} \widetilde{\text{eq}}(\tau, a)\cdot \sum_{i=0}^{q-1}c_i\cdot \prod_{j\in S_i}\left(\sum_{y\in \{0,1\}^{\log n}} \widetilde{M}_{j}(a,y)\widetilde{Z}_{c(j)}(y)\right),
+$$
+which can be proved with multiple calls to the sumcheck protocol.
 
 \section*{AIR as a MCCCS}
 The AIR arithmetization is shown to be a special case of CCS in \cite{cryptoeprint:2023/552}. We show here that AIR can also be seen as a MCCCS with a very simple transformation.
@@ -191,7 +195,7 @@ $$ g_{k+1}(x,y) = g_k(x,y)\frac{x_k (1-y_k)(1-x_{k+1})y_{k+1}}{x_{k-1}(1-y_{k-1}
 Therefore, $\widetilde{\text{next}}(x,y)$ can be computed in time $O(v)$.
 
 $$ $$
-It can sometimes be useful to consider *higher order shifts*, that is constraints of the form
+It can sometimes be useful to consider \emph{higher order shifts}, that is constraints of the form
 $$
 F(z_0[i],\dots,z_{C-1}[i],z_0[i+s],\dots,z_{C-1}[i+s])=0,
 $$
